@@ -5,6 +5,16 @@
 #include <cstdlib>
 #include "FileObserver.h"
 
+void FileObserver::setRefreshRate(int refreshRate)
+{
+    this->_refershRate = refreshRate;
+}
+
+int FileObserver::refreshRate()
+{
+    return this->_refershRate;
+}
+
 std::string FileObserver::qint64_to_string(qint64 value)
 {
     std::string result;
@@ -21,18 +31,20 @@ std::string FileObserver::qint64_to_string(qint64 value)
 
 void FileObserver::start()
 {
-    logger->Log("Length: " + std::to_string(this->container.size()));
-    system("cls");
+    logger->Log("Length: " + std::to_string(this->container->length()));
+    this->logger->cls();
     while (1)
     {
-        int i = 0;
-        foreach (QFileInfo file, this->container)
+        for (int i = 0; i < this->container->length(); ++i)
         {
+            QFileInfo file;
+            file = this->container->operator[](i);
             file.refresh();
             if (file.exists() &&
-                file.lastModified().time().secsTo(QTime().currentTime()) < FileObserver::fileChangeDisappearInterval)
+                file.lastModified().time().secsTo(QTime().currentTime()) < FileObserver::fileUpdateDisappearInterval)
             {
-                logger->Log(std::to_string(i) + ": " + file.absoluteFilePath().toStdString() + " U: " + file.lastModified().time().toString().toStdString() +
+                logger->Log(std::to_string(i) + ": [UPDATED " + file.lastModified().time().toString().toStdString() +
+                                "] " + file.absoluteFilePath().toStdString() +
                             " | " + qint64_to_string(file.size()));
             }
             else if (file.exists())
@@ -44,8 +56,8 @@ void FileObserver::start()
                 logger->Log(std::to_string(i) + ": [NOT EXISTS] " + file.absoluteFilePath().toStdString());
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        system("cls");
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / this->_refershRate));
+        this->logger->cls();
     }
 
 }
