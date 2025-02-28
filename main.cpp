@@ -1,5 +1,5 @@
 //#include <QCoreApplication>
-#include "FileObserver.h"
+#include "IFileObserver.h"
 
 int main(int argc, char *argv[])
 {

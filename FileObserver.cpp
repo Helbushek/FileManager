@@ -3,7 +3,18 @@
 #include <chrono>
 #include <time.h>
 #include <cstdlib>
-#include "FileObserver.h"
+#include "IFileObserver.h"
+
+FileObserver::FileObserver(IFileContainer *container, ILog *logger, int refreshRate)
+{
+    this->container = container;
+    this->logger = logger;
+    this->_refershRate = refreshRate;
+
+    connect(this, &FileObserver::onFileExistance, this->logger, &ILog::onFileExistance);
+    connect(this, &FileObserver::onFileUpdate, this->logger, &ILog::onFileUpdate);
+    connect(this, &FileObserver::onFileRemoval, this->logger, &ILog::onFileRemoval);
+}
 
 void FileObserver::setRefreshRate(int refreshRate)
 {
@@ -13,20 +24,6 @@ void FileObserver::setRefreshRate(int refreshRate)
 int FileObserver::refreshRate()
 {
     return this->_refershRate;
-}
-
-std::string FileObserver::qint64_to_string(qint64 value)
-{
-    std::string result;
-    result.reserve(20); // max. 20 digits possible
-    qint64 q = value;
-    do
-    {
-        result += "0123456789"[q % 10];
-        q /= 10;
-    } while (q);
-    std::reverse(result.begin(), result.end());
-    return result;
 }
 
 void FileObserver::start()
@@ -43,17 +40,15 @@ void FileObserver::start()
             if (file.exists() &&
                 file.lastModified().time().secsTo(QTime().currentTime()) < FileObserver::fileUpdateDisappearInterval)
             {
-                logger->Log(std::to_string(i) + ": [UPDATED " + file.lastModified().time().toString().toStdString() +
-                                "] " + file.absoluteFilePath().toStdString() +
-                            " | " + qint64_to_string(file.size()));
+                emit onFileUpdate(this->container, i);
             }
             else if (file.exists())
             {
-                logger->Log(std::to_string(i) + ": " + file.absoluteFilePath().toStdString() + " | " + qint64_to_string(file.size()));
+                emit onFileExistance(this->container, i);
             }
             else if (!file.exists())
             {
-                logger->Log(std::to_string(i) + ": [NOT EXISTS] " + file.absoluteFilePath().toStdString());
+                emit onFileRemoval(this->container, i);
             }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000 / this->_refershRate));
