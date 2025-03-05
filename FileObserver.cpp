@@ -4,7 +4,7 @@
 #include <time.h>
 #include <cstdlib>
 #include <math.h>
-#include "IFileObserver.h"
+#include "FileObserver.h"
 
 FileObserver::FileObserver(IFileContainer *container, ILog *logger, float refreshRate)
 {

@@ -6,21 +6,7 @@
 #include "Ilog.h"
 #include "IFileContainer.h"
 
-class IFileObserver : public QObject
-{
-    Q_OBJECT
-  public:
-    virtual ~IFileObserver() = default;
-
-    virtual void start() = 0;
-
-  signals:
-    virtual void onFileUpdate(IFileContainer* container, int index) = 0;
-    virtual void onFileRemoval(IFileContainer* container, int index) = 0;
-    virtual void onFileExistance(IFileContainer* container, int index) = 0;
-};
-
-class FileObserver : public IFileObserver
+class FileObserver : public QObject
 {
     Q_OBJECT
   private:
