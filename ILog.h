@@ -2,41 +2,49 @@
 #include <string>
 #include <iostream>
 #include <QTime>
+#include <QObject>
+#include "IFileContainer.h"
 
-class ILog
+class ILog : public QObject
 {
+    Q_OBJECT
   public:
+    virtual ~ILog() = default;
+
     virtual void Log(std::string data) = 0;
 
-    virtual void Error(std::string error) = 0;
+  public slots:
+    virtual void onFileExistance(IFileContainer *container, const int index) = 0;
+    virtual void onFileUpdate(IFileContainer *container, const int index) = 0;
+    virtual void onFileRemoval(IFileContainer *container, const int index) = 0;
+    virtual void onCycleEnd() = 0;
 
-    virtual void Message(std::string message) = 0;
 };
 
 class ConsoleLog : public ILog
 {
+    Q_OBJECT
+
+  private:
     QTime time = QTime();
+    bool logTime = false;
+    static std::string qint64_to_string(qint64 value);
 
   public:
-    ConsoleLog(bool logTime)
-    {
-        this->logTime = logTime;
-    }
+    ~ConsoleLog() = default;
 
-    bool logTime = false;
-    void Log(std::string data)
-    {
-        if (logTime)
-        {
-            std::cout << time.currentTime().toString().toStdString() << " ";
-        }
-        std::cout << "[LOG] " << data << "\n";
-    }
+    ConsoleLog(bool logTime);
 
-    void Error(std::string error)
-    {
-    }
-    void Message(std::string message)
-    {
-    }
+    void Log(std::string data);
+
+    void cls();
+
+  public slots:
+    void onFileExistance(IFileContainer *container, const int index);
+
+    void onFileUpdate(IFileContainer *container, const int index);
+
+    void onFileRemoval(IFileContainer *container, const int index);
+
+    void onCycleEnd();
 };

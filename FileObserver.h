@@ -4,26 +4,34 @@
 #include <vector>
 #include <QFileInfo>
 #include "Ilog.h"
+#include "IFileContainer.h"
 
-class FileObserver : QObject
+class FileObserver : public QObject
 {
     Q_OBJECT
   private:
-    std::vector<QFileInfo> container;
+    IFileContainer* container;
     ILog *logger;
-    std::thread t;
+    float _refershRate;
+    unsigned int fileUpdateDisappearInterval = 1000;
 
   public:
-    FileObserver(std::vector<QFileInfo> container, ILog *logger)
-    {
-        this->container = container;
-        this->logger = logger;
-    }
-    ~FileObserver() = default;
+    FileObserver(IFileContainer *container, ILog *logger, float refreshRate = 1);
+    ~FileObserver();
+
+    void setContainer(IFileContainer *container);
+    void setLogger(ILog *logger);
+    void setUpdateDisappearInterval(unsigned int interval);
+
+    unsigned int refreshRate() const;
+    void setRefreshRate(unsigned int refreshRate);
 
     void start();
 
-  private:
-    static std::string qint64_to_string(qint64 value);
-    int fileChangeDisappearInterval = 10;
+  signals:
+    void onFileUpdate(IFileContainer *container, int index);
+    void onFileRemoval(IFileContainer *container, int index);
+    void onFileExistance(IFileContainer *container, int index);
+
+    void onCycleEnd();
 };
