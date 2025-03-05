@@ -11,18 +11,22 @@ The program handles the following situations for the monitored file:
 3. **File does not exist**: Displays a message stating that the file does not exist.
 Whenever a change in the file's state is detected (an event occurs), the program outputs a corresponding message to the console.
 ### Implementation Details
-- The program uses a **signal-slot mechanism** to handle events related to changes in the monitored file.
+- The program uses a **QT signal-slot mechanism** to handle events related to changes in the monitored file.
 - Monitoring is implemented using an infinite loop that updates the state of the observed file(s) every **1000/FileObserver::_refreshRate** miliseconds. For example:
   ```cpp
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   ```
+## UML-Diagram:
+
+![uml drawio](https://github.com/user-attachments/assets/18ec76d9-4aec-4042-b965-514e7e749238)
+
 ## Repository Structure
 - **Main Branch**: Contains the solution to this laboratory work.
-- Source files and implementation details can be found in the repository.
+- **Dev Branch**: Contains current development state of  laboratory
 ## Technologies Used
 - **QT Libraries**: Qt objects and core application for **signal - slot mechanism**
 - **C++**: Core language for implementation.
-- **Standard Library**: For file handling (<filesystem>or<fstream>), threading (<thread>), and timing (<chrono>).
+- **Standard Library**: For file handling (<fstream>), threading (<thread>), file info containing(<vector>) and timing (<chrono>).
 ## Notes
 - This implementation assumes a basic console interface.
 - The signal-slot mechanism is used to decouple file state checking from event handling.
