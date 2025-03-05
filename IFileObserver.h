@@ -26,15 +26,19 @@ class FileObserver : public IFileObserver
   private:
     IFileContainer* container;
     ILog *logger;
-    int _refershRate;
-    int fileUpdateDisappearInterval = 1000;
+    float _refershRate;
+    unsigned int fileUpdateDisappearInterval = 1000;
 
   public:
-    FileObserver(IFileContainer *container, ILog *logger, int refreshRate = 1);
-    ~FileObserver() = default;
+    FileObserver(IFileContainer *container, ILog *logger, float refreshRate = 1);
+    ~FileObserver();
 
-    int refreshRate();
-    void setRefreshRate(int refreshRate);
+    void setContainer(IFileContainer *container);
+    void setLogger(ILog *logger);
+    void setUpdateDisappearInterval(unsigned int interval);
+
+    unsigned int refreshRate() const;
+    void setRefreshRate(unsigned int refreshRate);
 
     void start();
 
@@ -42,4 +46,6 @@ class FileObserver : public IFileObserver
     void onFileUpdate(IFileContainer *container, int index);
     void onFileRemoval(IFileContainer *container, int index);
     void onFileExistance(IFileContainer *container, int index);
+
+    void onCycleEnd();
 };

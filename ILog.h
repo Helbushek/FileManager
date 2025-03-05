@@ -13,12 +13,11 @@ class ILog : public QObject
 
     virtual void Log(std::string data) = 0;
 
-    virtual void cls() = 0;
-
   public slots:
     virtual void onFileExistance(IFileContainer *container, const int index) = 0;
     virtual void onFileUpdate(IFileContainer *container, const int index) = 0;
     virtual void onFileRemoval(IFileContainer *container, const int index) = 0;
+    virtual void onCycleEnd() = 0;
 
 };
 
@@ -46,4 +45,6 @@ class ConsoleLog : public ILog
     void onFileUpdate(IFileContainer *container, const int index);
 
     void onFileRemoval(IFileContainer *container, const int index);
+
+    void onCycleEnd();
 };

@@ -29,7 +29,7 @@ class DynamicFileContainer : public IFileContainer
 {
   private:
     std::vector<QFileInfo> container;
-    std::string _path;
+    std::string fileContainerPath;
 
   public:
     ~DynamicFileContainer() = default;
