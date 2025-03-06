@@ -13,7 +13,7 @@ class FileObserver : public QObject
     IFileContainer* container;
     ILog *logger;
     float _refershRate;
-    unsigned int fileUpdateDisappearInterval = 1000;
+    unsigned int fileUpdateDisappearInterval = 10;
 
   public:
     FileObserver(IFileContainer *container, ILog *logger, float refreshRate = 1);
