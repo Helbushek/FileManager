@@ -22,9 +22,7 @@ FileObserver::FileObserver(IFileContainer *container, ILog *logger, float refres
 
 FileObserver::~FileObserver()
 {
-    // delete pointers
-    delete container;
-    delete logger;
+    // DO NOT delete pointers, it will cause unexpected behaviour
 }
 
 void FileObserver::setContainer(IFileContainer *container)
@@ -73,9 +71,7 @@ void FileObserver::start()
             file.refresh(); // !!! updated file existance, size, metadata, ...
 
             // check for existance and last modifications to the file
-            if (file.exists() &&
-                (file.lastModified().date().daysTo(QDate().currentDate()) <= FileObserver::fileUpdateDisappearInterval / (60*60*24)) &&
-                (file.lastModified().time().secsTo(QTime().currentTime()) <= FileObserver::fileUpdateDisappearInterval % (60*60*24))) // only updated in specified time range will show up (default = 1000 sec)
+            if (file.exists() && QDateTime::currentDateTime().toMSecsSinceEpoch() - file.lastModified().toMSecsSinceEpoch() <= fileUpdateDisappearInterval * 1000) // only updated in specified time range will show up (default = 1000 sec)
             {
                 emit onFileUpdate(this->container, i); // call the signal
             }
