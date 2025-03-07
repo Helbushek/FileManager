@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include "Ilog.h"
 #include "IFileContainer.h"
+#include "IRefresher.h"
 
 class FileObserver : public QObject
 {
@@ -12,19 +13,16 @@ class FileObserver : public QObject
   private:
     IFileContainer* container;
     ILog *logger;
-    float _refershRate;
+    IRefresher *refresher;
     unsigned int fileUpdateDisappearInterval = 10;
 
   public:
-    FileObserver(IFileContainer *container, ILog *logger, float refreshRate = 1);
+    FileObserver(IFileContainer *container, ILog *logger, IRefresher* refresher);
     ~FileObserver();
 
     void setContainer(IFileContainer *container);
     void setLogger(ILog *logger);
     void setUpdateDisappearInterval(unsigned int interval);
-
-    unsigned int refreshRate() const;
-    void setRefreshRate(unsigned int refreshRate);
 
     void start();
 

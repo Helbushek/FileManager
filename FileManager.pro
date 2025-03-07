@@ -21,4 +21,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     FileObserver.h \
     IFileContainer.h \
-    ILog.h
+    ILog.h \
+    IRefresher.h

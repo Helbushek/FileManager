@@ -1,17 +1,15 @@
 #include <QDateTime>
 #include <QTime>
-#include <chrono>
-#include <time.h>
 #include <cstdlib>
 #include <math.h>
 #include "FileObserver.h"
 
-FileObserver::FileObserver(IFileContainer *container, ILog *logger, float refreshRate)
+FileObserver::FileObserver(IFileContainer *container, ILog *logger, IRefresher *refresher)
 {
     // initiate variables
     this->container = container;
     this->logger = logger;
-    this->_refershRate = refreshRate;
+    this->refresher = refresher;
 
     //connect signal - slot relations with logger
     connect(this, &FileObserver::onFileExistance, this->logger, &ILog::onFileExistance);
@@ -38,18 +36,6 @@ void FileObserver::setLogger(ILog *logger)
 void FileObserver::setUpdateDisappearInterval(unsigned int interval)
 {
     fileUpdateDisappearInterval = interval;
-}
-
-void FileObserver::setRefreshRate(unsigned int refreshRate)
-{
-    // setting refresh rate
-    this->_refershRate = refreshRate;
-}
-
-unsigned int FileObserver::refreshRate() const
-{
-    // returning refresh rate
-    return this->_refershRate;
 }
 
 void FileObserver::start()
@@ -86,7 +72,6 @@ void FileObserver::start()
                 emit onFileRemoval(this->container, i); // call the signal
             }
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(int(1000 / this->_refershRate))); // wait before next cycle. cycle repeats every 1/refreshRate seconds or one refreshRate amount at a second
-
+        refresher->refresh();
     }
 }

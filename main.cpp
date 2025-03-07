@@ -7,8 +7,9 @@ int main(int argc, char *argv[])
 
     DynamicFileContainer container("C:/projects/TRPO/FileManager/fileContainer.txt"); // create container for observer
     ConsoleLog logger(true); // create logger for observer
+    TimeRefresher refresher(0.5f);
 
-    FileObserver observer(&container, &logger, 0.5f); // put container and logger into observer with refreshRate parameter
+    FileObserver observer(&container, &logger, &refresher); // put container and logger into observer with refreshRate parameter
     observer.start(); // run cycle
     return a.exec();
 }
