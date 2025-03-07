@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 #include "IFileContainer.h"
 
 // clears information about files it stores and reads it again from fileContainer file
@@ -16,10 +17,13 @@ void DynamicFileContainer::refresh()
         // guarantees to get to closest error or EOF
         while (getline(mFile, path))
         {
-            // create new file
-            QFileInfo newFile(QString::fromStdString(path));
-            // put file into container
-            this->append(newFile);
+            if (std::find(filePathesContainer.begin(), filePathesContainer.end(), path) == end(filePathesContainer))
+            {
+                // create new file
+                QFileInfo newFile(QString::fromStdString(path));
+                // put file into container
+                this->append(newFile);
+            }
         }
     }
 }
@@ -52,12 +56,14 @@ void DynamicFileContainer::append(QFileInfo file)
 {
     // puts ready-to-use variable into container
     container.push_back(file);
+    fileContainerPath.append(file.absoluteFilePath().toStdString());
 }
 
 void DynamicFileContainer::clear()
 {
     // clears container
     this->container.clear();
+    fileContainerPath.clear();
 }
 
 int DynamicFileContainer::length()

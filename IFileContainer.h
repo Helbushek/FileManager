@@ -28,6 +28,7 @@ class StaticFileContainer : public IFileContainer
 class DynamicFileContainer : public IFileContainer
 {
   private:
+    std::vector<std::string> filePathesContainer;
     std::vector<QFileInfo> container;
     std::string fileContainerPath;
 
