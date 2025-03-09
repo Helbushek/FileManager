@@ -54,7 +54,7 @@ void FileObserver::start()
             // for comfort usage writing data into separate variable
             QFileInfo file;
             file = this->container->operator[](i);
-            file.refresh(); // !!! updated file existance, size, metadata, ...
+            file.refresh(); // !!! updated file existance, size, other data
 
             // check for existance and last modifications to the file
             if (file.exists() && QDateTime::currentDateTime().toMSecsSinceEpoch() - file.lastModified().toMSecsSinceEpoch() <= fileUpdateDisappearInterval * 1000) // only updated in specified time range will show up (default = 1000 sec)

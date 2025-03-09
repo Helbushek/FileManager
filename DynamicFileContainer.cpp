@@ -17,7 +17,7 @@ void DynamicFileContainer::refresh()
         // guarantees to get to closest error or EOF
         while (getline(mFile, path))
         {
-            if (std::find(filePathesContainer.begin(), filePathesContainer.end(), path) == end(filePathesContainer))
+            if (std::find(begin(filePathesContainer), end(filePathesContainer), path) == end(filePathesContainer))
             {
                 // create new file
                 QFileInfo newFile(QString::fromStdString(path));
