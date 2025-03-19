@@ -16,9 +16,17 @@ class FileObserver : public QObject
     IRefresher *refresher;
     unsigned int fileUpdateDisappearInterval = 10;
 
-  public:
-    FileObserver(IFileContainer *container, ILog *logger, IRefresher* refresher);
+  private:
+    FileObserver();
+    FileObserver(IFileContainer *container, ILog *logger, IRefresher *refresher);
     ~FileObserver();
+    FileObserver(const FileObserver &) = delete;
+    FileObserver &operator=(const FileObserver &) = delete;
+
+    static FileObserver object;
+
+  public:
+    static FileObserver &Instance(IFileContainer *container, ILog *logger, IRefresher *refresher);
 
     void setContainer(IFileContainer *container);
     void setLogger(ILog *logger);

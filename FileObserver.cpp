@@ -4,6 +4,12 @@
 #include <math.h>
 #include "FileObserver.h"
 
+FileObserver &FileObserver::Instance(IFileContainer *container, ILog *logger, IRefresher *refresher)
+{
+    static FileObserver object(container, logger, refresher);
+    return object;
+}
+
 FileObserver::FileObserver(IFileContainer *container, ILog *logger, IRefresher *refresher)
 {
     // initiate variables
@@ -40,38 +46,77 @@ void FileObserver::setUpdateDisappearInterval(unsigned int interval)
 
 void FileObserver::start()
 {
-    if (container == 0)
+    if (container == nullptr)
     {
         return;
     }
+    bool hasChanges = false;
+    bool forceEmit = true;
+
+    QVector<QFileInfo> previousStates(container->length());
+
+    for (int i = 0; i < container->length(); ++i)
+    {
+        previousStates[i] = container->operator[](i);
+        previousStates[i].refresh(); // Получаем начальное состояние
+    }
+
     // infinite cycle (only way to exit is to close console ot Ctrl + X (ot etc.)
     while (1)
     {
-        emit onCycleEnd(); // call the signal
-        // looking into all elements in container
+
         for (int i = 0; i < this->container->length(); ++i)
         {
-            // for comfort usage writing data into separate variable
-            QFileInfo file;
-            file = this->container->operator[](i);
-            file.refresh(); // !!! updated file existance, size, other data
+            hasChanges = false;
+            QFileInfo file = this->container->operator[](i);
+            QFileInfo &oldFile = previousStates[i];
 
-            // check for existance and last modifications to the file
-            if (file.exists() && QDateTime::currentDateTime().toMSecsSinceEpoch() - file.lastModified().toMSecsSinceEpoch() <= fileUpdateDisappearInterval * 1000) // only updated in specified time range will show up (default = 1000 sec)
+            // Если файл изменился
+            if (file.lastModified() != oldFile.lastModified() ||
+                file.size() != oldFile.size() ||
+                file.exists() != oldFile.exists())
             {
-                emit onFileUpdate(this->container, i); // call the signal
-            }
-            // check for file existance (case where file exists and was not modified)
-            else if (file.exists())
-            {
-                emit onFileExistance(this->container, i); // call the signal
-            }
-            // check for file not existance
-            else if (!file.exists())
-            {
-                emit onFileRemoval(this->container, i); // call the signal
+                hasChanges = true;
+                break; // Достаточно знать, что хотя бы один файл изменился
             }
         }
+
+        if (hasChanges || forceEmit)
+        {
+            emit onCycleEnd(); // Отправляем сигнал о конце цикла
+
+            // Обновляем состояние всех файлов
+            for (int i = 0; i < this->container->length(); ++i)
+            {
+                QFileInfo file = this->container->operator[](i);
+                file.refresh(); // Обновляем данные файла
+
+                if (file.exists() &&
+                    QDateTime::currentDateTime().toMSecsSinceEpoch() - file.lastModified().toMSecsSinceEpoch() <=
+                        fileUpdateDisappearInterval * 1000)
+                {
+                    emit onFileUpdate(this->container, i); // Сигнал об обновлении файла
+                }
+                else if (file.exists())
+                {
+                    emit onFileExistance(this->container, i); // Сигнал о существовании файла
+                }
+                else
+                {
+                    emit onFileRemoval(this->container, i); // Сигнал об удалении файла
+                }
+
+                previousStates[i] = file;
+            }
+
+            // Сбрасываем флаги после обработки
+            hasChanges = false;
+            if (forceEmit)
+            {
+                forceEmit = false; // Отключаем после первого запуска
+            }
+        }
+
         refresher->refresh();
     }
 }

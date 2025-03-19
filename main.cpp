@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     ConsoleLog logger(true); // create logger for observer
     TimeRefresher refresher(0.5f);
 
-    FileObserver observer(&container, &logger, &refresher); // put container and logger into observer with refreshRate parameter
+    FileObserver &observer = FileObserver::Instance(&container, &logger, &refresher); // put container and logger into observer with refreshRate parameter
     observer.start(); // run cycle
     return a.exec();
 }

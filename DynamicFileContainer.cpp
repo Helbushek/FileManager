@@ -17,13 +17,11 @@ void DynamicFileContainer::refresh()
         // guarantees to get to closest error or EOF
         while (getline(mFile, path))
         {
-            if (std::find(begin(filePathesContainer), end(filePathesContainer), path) == end(filePathesContainer))
+            if (path.empty())
             {
-                // create new file
-                QFileInfo newFile(QString::fromStdString(path));
-                // put file into container
-                this->append(newFile);
+                continue;
             }
+            this->append(QFile(QString::fromStdString(path)));
         }
     }
 }
@@ -54,16 +52,18 @@ QFileInfo DynamicFileContainer::operator[](int index)
 
 void DynamicFileContainer::append(QFileInfo file)
 {
-    // puts ready-to-use variable into container
-    container.push_back(file);
-    fileContainerPath.append(file.absoluteFilePath().toStdString());
+    if (std::find(begin(filePathesContainer), end(filePathesContainer), file.absoluteFilePath().toStdString()) == end(filePathesContainer))
+    {
+        container.push_back(file);
+        filePathesContainer.push_back(file.absoluteFilePath().toStdString());
+    }
 }
 
 void DynamicFileContainer::clear()
 {
     // clears container
     this->container.clear();
-    fileContainerPath.clear();
+    filePathesContainer.clear();
 }
 
 int DynamicFileContainer::length()
