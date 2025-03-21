@@ -17,7 +17,7 @@ FileObserver::FileObserver(IFileContainer *container, ILog *logger, IRefresher *
     this->logger = logger;
     this->refresher = refresher;
 
-    //connect signal - slot relations with logger
+           //connect signal - slot relations with logger
     connect(this, &FileObserver::onFileExistance, this->logger, &ILog::onFileExistance);
     connect(this, &FileObserver::onFileUpdate, this->logger, &ILog::onFileUpdate);
     connect(this, &FileObserver::onFileRemoval, this->logger, &ILog::onFileRemoval);
@@ -26,7 +26,7 @@ FileObserver::FileObserver(IFileContainer *container, ILog *logger, IRefresher *
 
 FileObserver::~FileObserver()
 {
-    // DO NOT delete pointers, it will cause unexpected behaviour
+  // DO NOT delete pointers, it will cause unexpected behaviour
 }
 
 void FileObserver::setContainer(IFileContainer *container)
@@ -53,25 +53,31 @@ void FileObserver::start()
     bool hasChanges = false;
     bool forceEmit = true;
 
-    QVector<QFileInfo> previousStates(container->length());
+    std::vector<QFileInfo> previousStates;
 
-    for (int i = 0; i < container->length(); ++i)
-    {
-        previousStates[i] = container->operator[](i);
-        previousStates[i].refresh(); // Получаем начальное состояние
-    }
-
-    // infinite cycle (only way to exit is to close console ot Ctrl + X (ot etc.)
+           // infinite cycle (only way to exit is to close console ot Ctrl + X (ot etc.)
     while (1)
     {
+        hasChanges = false;
+
+        if (previousStates.size() != this->container->length())
+        {
+            previousStates.clear();
+            for (int i = 0; i < container->length(); ++i)
+            {
+                previousStates.push_back(container->operator[](i));
+                previousStates[i].refresh(); // Получаем начальное состояние
+            }
+            hasChanges = true;
+        }
 
         for (int i = 0; i < this->container->length(); ++i)
         {
-            hasChanges = false;
+
             QFileInfo file = this->container->operator[](i);
             QFileInfo &oldFile = previousStates[i];
 
-            // Если файл изменился
+                   // Если файл изменился
             if (file.lastModified() != oldFile.lastModified() ||
                 file.size() != oldFile.size() ||
                 file.exists() != oldFile.exists())
@@ -85,7 +91,7 @@ void FileObserver::start()
         {
             emit onCycleEnd(); // Отправляем сигнал о конце цикла
 
-            // Обновляем состояние всех файлов
+                   // Обновляем состояние всех файлов
             for (int i = 0; i < this->container->length(); ++i)
             {
                 QFileInfo file = this->container->operator[](i);
@@ -109,7 +115,7 @@ void FileObserver::start()
                 previousStates[i] = file;
             }
 
-            // Сбрасываем флаги после обработки
+                   // Сбрасываем флаги после обработки
             hasChanges = false;
             if (forceEmit)
             {
