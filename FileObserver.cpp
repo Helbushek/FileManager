@@ -60,6 +60,7 @@ void FileObserver::start()
     {
         hasChanges = false;
 
+        // если контейнер изменился
         if (previousStates.size() != this->container->length())
         {
             previousStates.clear();
